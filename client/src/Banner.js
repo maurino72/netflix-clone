@@ -1,7 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Banner.css";
+import axios from "./axios";
+import requests from "./request";
 
 function Banner() {
+  const [movie, setMovie] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const bannerData = await axios.get(requests.fetchNetflixOriginals);
+
+      setMovie(
+        bannerData.data.results[
+          Math.floor(Math.random() * bannerData.data.results.length - 1)
+        ]
+      );
+
+      return bannerData;
+    }
+
+    fetchData();
+  }, []);
+
   const truncateDescription = (string, n) => {
     return string?.length > n ? string.substring(0, n - 1) + "..." : string;
   };
@@ -12,21 +32,20 @@ function Banner() {
       style={{
         backgroundSize: "cover",
         backgroundPosition: "center center",
-        backgroundImage: `url('https://gmedia.playstation.com/is/image/SIEPDC/netflix-page-banner-desktop-02-en-10nov20?$native--t$')`
+        backgroundImage: `url("https://image.tmdb.org/t/p/w500${movie?.backdrop_path}")`
       }}
     >
       <div className="banner__content">
-        <h1 className="banner__title">Movie Name</h1>
+        <h1 className="banner__title">
+          {movie?.title || movie?.name || movie?.original_name}
+        </h1>
         <div className="banner__buttons">
           <button className="banner__button">Play</button>
           <button className="banner__button">My List</button>
         </div>
 
         <h1 className="banner__description">
-          {truncateDescription(
-            "this is the descriptionLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-            150
-          )}
+          {truncateDescription(`${movie?.overview}`, 150)}
         </h1>
       </div>
 
